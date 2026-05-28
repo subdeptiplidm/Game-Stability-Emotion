@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Stability Emotion - PT Indomarco Prismatama</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Neon Cyber-Nusantara Color Palette */
+            --bg-color: #06060B; /* Deep Space Navy/Black */
+            --primary-dark: #12121A;
+            --accent-merah: #FF003C; /* Glowing Indonesian Neon Red */
+            --accent-putih: #FFFFFF; /* Bright White */
+            --accent-lime: #39FF14; /* Neon Green */
+            --accent-gold: #FFD700; /* Nusantara Gold */
+            --accent-cyan: #00FFFF; /* Cyberpunk Cyan */
+            --card-bg: #161622; /* Sleek bento dark background */
+            --text-main: #FFFFFF;
+            --text-muted: #8E8E9F;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Ambient Nusantara Batik Kawung Glowing Pattern Overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z M40 10 L70 40 L40 70 L10 40 Z M40 20 L60 40 L40 60 L20 40 Z' fill='none' stroke='%23FF003C' stroke-width='2'/%3E%3Ccircle cx='40' cy='40' r='5' fill='%23FFD700'/%3E%3C/svg%3E");
+            background-size: 80px 80px;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background: rgba(18, 18, 26, 0.95);
+            position: relative;
+            box-shadow: 0 0 40px rgba(255, 0, 60, 0.25);
+            border-left: 2px solid rgba(255, 0, 60, 0.3);
+            border-right: 2px solid rgba(255, 0, 60, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .bento-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .bento-box {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Accent Glows for Bento Boxes */
+        .bento-box.full { grid-column: span 2; }
+        .bento-box.merah-putih { 
+            background: linear-gradient(135deg, #1A050A 0%, #12121A 100%); 
+            border: 1.5px solid var(--accent-merah);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
+        }
+        .bento-box.gold { 
+            background: linear-gradient(135deg, #1A1505 0%, #12121A 100%); 
+            border: 1.5px solid var(--accent-gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        .bento-box.cyan { 
+            background: linear-gradient(135deg, #051A1A 0%, #12121A 100%); 
+            border: 1.5px solid var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        h1 { 
+            font-size: 2.2rem; 
+            font-weight: 800; 
+            line-height: 1.1; 
+            margin-bottom: 8px; 
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #FFFFFF, #FF003C);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; color: var(--accent-gold); display: flex; align-items: center; gap: 8px; }
+        p { font-size: 0.95rem; line-height: 1.5; margin-bottom: 12px; color: var(--text-muted); }
+        
+        .tag { 
+            display: inline-block; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: 800; 
+            margin-bottom: 10px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .tag-merah-putih { background: linear-gradient(90deg, var(--accent-merah), var(--accent-putih)); color: #000; }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: white;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        input:focus { 
+            border-color: var(--accent-merah); 
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.3);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { 
+            background: linear-gradient(90deg, var(--accent-merah), #A00020); 
+            color: white; 
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.4);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 60, 0.6);
+        }
+        
+        /* GAMEPLAY BAR SCREEN ELEMENTS */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        .stats-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Trust Meter */
+        .meter-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            height: 12px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-merah), var(--accent-lime));
+            width: 50%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--accent-lime);
+        }
+        .meter-label { 
+            font-size: 0.8rem; 
+            font-weight: 800; 
+            text-align: center; 
+            color: var(--accent-cyan); 
+            margin-bottom: 20px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 350px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            cursor: grab;
+        }
+
+        .card.flipped { transform: rotateY(180deg); }
+
+        .card-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 32px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: var(--card-bg);
+            border: 4px solid var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Back Card specific styling (fixing mirrored text from image_92a4fb.png) */
+        .card-back {
+            transform: rotateY(180deg);
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--accent-merah);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
+            opacity: 0; /* Ensures absolutely no overlap when facing front */
+        }
+
+        /* Toggling visibility based on rotation to prevent any mirroring glitches */
+        .card:not(.flipped) .card-back { pointer-events: none; opacity: 0; }
+        .card.flipped .card-face:not(.card-back) { pointer-events: none; opacity: 0; }
+        .card.flipped .card-back { opacity: 1; pointer-events: auto; }
+
+        .card-text { font-size: 1.3rem; font-weight: 600; line-height: 1.4; color: white; }
+        .feedback-type { font-size: 1.5rem; font-weight: 800; margin-bottom: 16px; padding: 8px 16px; border-radius: 12px; text-transform: uppercase; letter-spacing: 2px;}
+        .feedback-benar { background: var(--accent-lime); color: var(--primary-dark); box-shadow: 0 0 15px var(--accent-lime);}
+        .feedback-salah { background: var(--accent-merah); color: white; box-shadow: 0 0 15px var(--accent-merah);}
+        .feedback-desc { font-size: 1rem; color: #E9ECEF; }
+
+        /* Timer bar representation */
+        .timer-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .timer-bar-fill {
+            height: 100%;
+            background: var(--accent-gold);
+            width: 100%;
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+
+        .action-area {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+        }
+        .btn-action {
+            flex: 1;
+            padding: 20px;
+            border-radius: 24px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            text-transform: uppercase;
+        }
+        .btn-action i { font-size: 2rem; }
+        .btn-salah { background: var(--accent-merah); color: white; box-shadow: 0 8px 0 #990024, 0 0 15px rgba(255, 0, 60, 0.3); }
+        .btn-salah:active { transform: translateY(8px); box-shadow: 0 0 0 #990024, 0 0 5px rgba(255, 0, 60, 0.3); }
+        .btn-benar { background: var(--accent-lime); color: var(--primary-dark); box-shadow: 0 8px 0 #22990c, 0 0 15px rgba(57, 255, 20, 0.3); }
+        .btn-benar:active { transform: translateY(8px); box-shadow: 0 0 0 #22990c, 0 0 5px rgba(57, 255, 20, 0.3); }
+
+        .badge-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px var(--accent-gold);
+        }
+        
+        .review-list {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .review-item {
+            background: var(--card-bg);
+            color: white;
+            padding: 16px;
+            border-radius: 16px;
+            border-left: 6px solid #ccc;
+            font-size: 0.9rem;
+        }
+        .review-item.correct { border-color: var(--accent-lime); }
+        .review-item.wrong { border-color: var(--accent-merah); }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 24px 0;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        #audio-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            cursor: pointer;
+            text-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        /* Utility classes */
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 16px; }
+        .hidden { display: none !important; }
+
+        /* Swipe movement animations */
+        .swipe-left { transform: translateX(-150%) rotate(-20deg) !important; opacity: 0; }
+        .swipe-right { transform: translateX(150%) rotate(20deg) !important; opacity: 0; }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    
+    <!-- 1. GATEWAY SCREEN -->
+    <div id="screen-gateway" class="screen active">
+        <div class="bento-container" style="margin-top: 10px;">
+            <div class="bento-box merah-putih full text-center">
+                <span class="tag tag-merah-putih">Training DDCM</span>
+                <h1>Game Stability Emotion</h1>
+            </div>
+            <div class="bento-box gold">
+                <h2><i class="fa-solid fa-bullseye"></i> Goal</h2>
+                <p style="font-size: 0.8rem; color: #FFF;">Mengetahui tingkat stabilitas emosi sebagai seorang Manager</p>
+            </div>
+            <div class="bento-box cyan">
+                <h2><i class="fa-solid fa-bolt"></i> Rule</h2>
+                <p style="font-size: 0.8rem; color: #FFF;">Waktu berpikir <b>15 detik</b> per kasus. Tebak apakah perilakunya Benar / Salah.</p>
+            </div>
+        </div>
+
+        <div class="bento-box full" style="margin-bottom: auto; background-color: var(--card-bg);">
+            <h2 style="font-size: 1.2rem; color: white;"><i class="fa-solid fa-passport"></i> Mission Briefing</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Masukkan identitas Anda untuk mencatatkan skor ke pangkalan data pelatihan LMS Indomarco Prismatama:</p>
+            <input type="text" id="playerName" placeholder="Nama Lengkap Karyawan" required>
+            <input type="text" id="playerNIK" placeholder="Nomor Induk Karyawan (NIK)" required>
+            <button class="btn btn-primary mt-2" id="btn-start">
+                Mulai Misi <i class="fa-solid fa-play"></i>
+            </button>
+        </div>
+
+        <footer>
+            Education & Training Dept. © 2026<br>
+            <i>PT Indomarco Prismatama</i>
+        </footer>
+    </div>
+
+    <!-- 2. CORE GAMEPLAY SCREEN -->
+    <div id="screen-game" class="screen">
+        <div class="top-bar">
+            <div class="stats-badge">
+                <i class="fa-solid fa-fire" style="color: var(--accent-merah);"></i> x<span id="streakDisplay">0</span>
+            </div>
+            <div class="stats-badge">
+                <i class="fa-solid fa-star" style="color: var(--accent-gold);"></i> <span id="scoreDisplay">0</span> / 100 Pts
+            </div>
+            <button id="audio-toggle"><i class="fa-solid fa-volume-high"></i></button>
+        </div>
+
+        <div class="meter-container">
+            <div class="meter-fill" id="trustMeter"></div>
+        </div>
+        <div class="meter-label">Trust Meter: <span id="trustValue">50</span>%</div>
+
+        <div class="timer-bar-bg">
+            <div class="timer-bar-fill" id="timerBar"></div>
+        </div>
+
+        <div class="card-container" id="cardArea">
+            <div class="card" id="gameCard">
+                <div class="card-face card-front">
+                    <span class="tag" style="background: var(--primary-dark); color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">Kasus #<span id="caseNum">1</span></span>
+                    <p class="card-text" id="scenarioText">Mempersiapkan dilema kerja...</p>
+                </div>
+                <!-- card-back structure isolated to avoid text-mirroring bugs -->
+                <div class="card-face card-back">
+                    <div id="feedbackTag" class="feedback-type">Benar</div>
+                    <p class="feedback-desc" id="feedbackText">Penjelasan Stephen Covey akan dimuat di sini.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-area" id="actionButtons">
+            <button class="btn-action btn-salah" onclick="handleAnswer('salah')">
+                <i class="fa-solid fa-arrow-left"></i>
+                Salah
+            </button>
+            <button class="btn-action btn-benar" onclick="handleAnswer('benar')">
+                <i class="fa-solid fa-arrow-right"></i>
+                Benar
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. DEBRIEF SCREEN -->
+    <div id="screen-debrief" class="screen">
+        <div class="bento-container" style="margin-top: 10px;">
+            <div class="bento-box full text-center" id="resultHeader" style="background-color: var(--primary-dark); color: white;">
+                <i class="fa-solid fa-award badge-icon" id="badgeIcon"></i>
+                <h1 id="resultTitle">High-Trust Leader</h1>
+                <p id="resultMsg">Anda berhasil membina budaya Nusantara yang suportif!</p>
+            </div>
+            
+            <div class="bento-box text-center">
+                <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Skor Ujian</p>
+                <h2 style="margin:0; font-size: 2rem; color: var(--accent-lime);" id="finalScore">0</h2>
+            </div>
+            <div class="bento-box text-center">
+                <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Trust Meter Akhir</p>
+                <h2 style="margin:0; font-size: 2rem; color: var(--accent-cyan);" id="finalTrust">0%</h2>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 10px; margin-bottom: 5px;">Post-Action Review</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Belajar dari setiap interaksi berdasarkan asas EBA (Covey)</p>
+        
+        <div class="review-list" id="reviewContainer">
+            <!-- Dynamic assessment list elements injected here -->
+        </div>
+
+        <button class="btn btn-primary" style="margin-top: 24px; margin-bottom: 24px;" onclick="location.reload()">
+            <i class="fa-solid fa-rotate-right"></i> Ulangi Misi
+        </button>
+
+        <footer>
+            Hasil Tercatat Resmi - <span id="displayUser"></span><br>
+            Education & Training Dept. © 2026
+        </footer>
+    </div>
+
+</div>
+
+<script>
+    /* =========================================================================
+       AUDIO SYSTEM (Procedural Acoustic Slow Piano Synthesizer)
+       ========================================================================= */
+    let audioCtx = null;
+    let isMuted = false;
+    let isPlayingBGM = false;
+    let pianoTimer = null;
+    let nextNoteTime = 0.0;
+    
+    // Slow chord progression for gentle, soothing piano (Tempo around 65 BPM)
+    // Formula: Root -> Quint -> Octave/Tension arpeggiated gracefully
+    const pianoTempo = 65.0; 
+    const beatsPerSecond = 60.0 / pianoTempo;
+    
+    // Ambient Slow Piano Progression chords:
+    // Cmaj9 (C3, G3, D4, E4)
+    // Fmaj7 (F2, C3, E3, A3)
+    // Am9 (A2, E3, B3, C4)
+    // G6/9 (G2, D3, A3, B3)
+    const chordProgression = [
+        [130.81, 196.00, 293.66, 329.63], // Chord 1: Cmaj9
+        [87.31,  130.81, 164.81, 220.00], // Chord 2: Fmaj7
+        [110.00, 164.81, 246.94, 261.63], // Chord 3: Am9
+        [97.99,  146.83, 220.00, 246.94]  // Chord 4: G6/9
+    ];
+    
+    let currentChordIndex = 0;
+    let currentNoteIndex = 0;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    // High fidelity acoustic piano synthesis
+    function playPianoNote(freq, startTime, duration, vol = 0.12) {
+        if (isMuted || !audioCtx) return;
+
+        // Custom filter to simulate the warm lowpass felt hammer of an upright piano
+        const pianoFilter = audioCtx.createBiquadFilter();
+        pianoFilter.type = 'lowpass';
+        pianoFilter.frequency.setValueAtTime(1000, startTime); // cut harsh highs
+        pianoFilter.Q.setValueAtTime(1.0, startTime);
+        pianoFilter.connect(audioCtx.destination);
+
+        const mainGain = audioCtx.createGain();
+        mainGain.gain.setValueAtTime(0, startTime);
+        mainGain.gain.linearRampToValueAtTime(vol, startTime + 0.005); // Ultra-fast strike/attack
+        // Exponential decay simulating the natural string damping
+        mainGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+        mainGain.connect(pianoFilter);
+
+        // 1. Fundamental string vibration (Sine wave)
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, startTime);
+        const gain1 = audioCtx.createGain();
+        gain1.gain.setValueAtTime(0.85, startTime);
+        osc1.connect(gain1);
+        gain1.connect(mainGain);
+        osc1.start(startTime);
+        osc1.stop(startTime + duration);
+
+        // 2. Sweet second harmonic string vibration (Sine wave at double freq)
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2, startTime);
+        const gain2 = audioCtx.createGain();
+        gain2.gain.setValueAtTime(0.35, startTime);
+        osc2.connect(gain2);
+        gain2.connect(mainGain);
+        osc2.start(startTime);
+        osc2.stop(startTime + duration);
+
+        // 3. Wood cabin / Soundboard warmth resonance (Triangle wave)
+        const osc3 = audioCtx.createOscillator();
+        osc3.type = 'triangle';
+        osc3.frequency.setValueAtTime(freq * 3, startTime);
+        const gain3 = audioCtx.createGain();
+        gain3.gain.setValueAtTime(0.12, startTime);
+        // Harmonic partials decay faster in pianos
+        gain3.gain.setValueAtTime(0.12, startTime);
+        gain3.gain.exponentialRampToValueAtTime(0.001, startTime + (duration * 0.35));
+        osc3.connect(gain3);
+        gain3.connect(mainGain);
+        osc3.start(startTime);
+        osc3.stop(startTime + duration);
+    }
+
+    function pianoScheduler() {
+        while (nextNoteTime < audioCtx.currentTime + 0.1) {
+            schedulePianoStep(nextNoteTime);
+            advancePianoStep();
+        }
+        pianoTimer = setTimeout(pianoScheduler, 25);
+    }
+
+    function schedulePianoStep(time) {
+        if (isMuted) return;
+
+        // Fetch notes of current active chord
+        const currentChord = chordProgression[currentChordIndex];
+        
+        // Root note always has longer decay and softer sound, played on beat 0
+        if (currentNoteIndex === 0) {
+            playPianoNote(currentChord[0], time, 3.5, 0.14); // Rich deep root note
+        } else {
+            // Arpeggiated melody notes
+            playPianoNote(currentChord[currentNoteIndex], time, 2.0, 0.08);
+        }
+    }
+
+    function advancePianoStep() {
+        // Space between arpeggio triggers: every 0.75 seconds (slow flowing cadence)
+        nextNoteTime += 0.75;
+        
+        currentNoteIndex = (currentNoteIndex + 1) % 4;
+        if (currentNoteIndex === 0) {
+            // Shift to next chord sequence after completing the 4-note arpeggio cycle
+            currentChordIndex = (currentChordIndex + 1) % chordProgression.length;
+        }
+    }
+
+    function startMusicLoop() {
+        if (isPlayingBGM) return;
+        nextNoteTime = audioCtx.currentTime;
+        isPlayingBGM = true;
+        pianoScheduler();
+    }
+
+    function playSFX(type) {
+        if (isMuted || !audioCtx) return;
+        const now = audioCtx.currentTime;
+        
+        if (type === 'correct') {
+            // Delicate, higher-octave soft dual-piano chime
+            playPianoNote(523.25, now, 0.6, 0.15); // C5
+            setTimeout(() => playPianoNote(659.25, audioCtx.currentTime, 0.8, 0.15), 100); // E5
+        } else if (type === 'wrong') {
+            // Low-pitched detuned soft strike
+            playPianoNote(146.83, now, 0.8, 0.2); // D3
+            setTimeout(() => playPianoNote(138.59, audioCtx.currentTime, 0.8, 0.2), 120); // C#3
+        } else if (type === 'swipe') {
+            playPianoNote(392.00, now, 0.15, 0.04); // Quiet G4 brush sound
+        }
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        const btn = document.getElementById('audio-toggle');
+        if (isMuted) {
+            btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            initAudio();
+        }
+    }
+    document.getElementById('audio-toggle').addEventListener('click', toggleMute);
+
+    /* =========================================================================
+       STREAMING_CHUNK: Setting up Covey's EBA 10 Scenario content database...
+       ========================================================================= */
+    const scenarios = [
+        {
+            text: "Membalas pesan diskusi tim hanya dengan tulisan 'Oke' singkat, padahal usulan mereka sangat mendalam dan butuh tanggapan detail.",
+            type: "salah",
+            theory: "Unclarified Expectations. Tidak memberikan tanggapan jelas menimbulkan tebakan di pihak lawan bicara."
+        },
+        {
+            text: "Menyediakan waktu 5 menit di awal rapat koordinasi untuk menanyakan kabar keluarga serta beban mental tim kerja.",
+            type: "benar",
+            theory: "Understanding the Individual. Memulai dengan kepedulian tulus memunculkan rasa aman berkolaborasi."
+        },
+        {
+            text: "Berjanji menyelesaikan perbaikan dokumen pukul 3 sore, tetapi baru dikirim malam hari tanpa info penundaan sebelumnya.",
+            type: "salah",
+            theory: "Breaking Commitments. Mengabaikan komitmen waktu merusak kredibilitas profesional di mata tim."
+        },
+        {
+            text: "Mendiskusikan ketidakcakapan kerja anak magang di grup obrolan besar kantor secara transparan agar yang lain belajar.",
+            type: "salah",
+            theory: "Lack of Personal Integrity. Menyingkap kesalahan seseorang di hadapan forum publik menghancurkan martabatnya."
+        },
+        {
+            text: "Dengan berani menyampaikan, 'Mohon maaf ini kelalaian saya, saya akan segera perbaiki bimbingannya' saat menyadari instruksi salah.",
+            type: "benar",
+            theory: "Apologize Sincerely. Pengakuan kesalahan secara jujur dan berani adalah penambah saldo emosi relasi terbesar."
+        },
+        {
+            text: "Menyebutkan kontribusi divisi lintas tim di forum pengumuman umum dan memberi apresiasi atas kesuksesan bersama.",
+            type: "benar",
+            theory: "Attending to Little Things. Memberi perhatian dan pengakuan pada dedikasi kecil menumbuhkan loyalitas tinggi."
+        },
+        {
+            text: "Membagikan pekerjaan rumit ke tim junior dengan instruksi singkat: 'Tolong diselesaikan seperti standar biasanya saja ya'.",
+            type: "salah",
+            theory: "Unclarified Expectations. Berasumsi orang lain mengerti seluruh isi kepala Anda melahirkan performa menyimpang."
+        },
+        {
+            text: "Menyimak keluhan rekan kerja yang mengalami kelelahan mental tanpa berniat memotong pembicaraan untuk memberi nasihat instan.",
+            type: "benar",
+            theory: "Understanding the Individual. Mendengarkan dengan niat memahami rasa lelahnya, bukan sekadar menjawab logis."
+        },
+        {
+            text: "Diam-diam merapikan langsung file kerja rekan satu tim yang berantakan demi kecepatan kerja, tanpa mengomunikasikannya.",
+            type: "salah",
+            theory: "Lack of Open Communication. Terlihat menolong, namun memangkas rasa tanggung jawab dan keterbukaan antarrekan."
+        },
+        {
+            text: "Meluruskan tuduhan miring rekan-rekan saat ada anggota kelompok yang dituduh malas secara tidak adil di luar kehadirannya.",
+            type: "benar",
+            theory: "Showing Personal Integrity. Loyalitas tertinggi dibuktikan dengan cara membela mereka yang sedang tidak ada di ruangan."
+        }
+    ];
+
+    /* =========================================================================
+       STREAMING_CHUNK: Handling the gameplay logic and stats calculation...
+       ========================================================================= */
+    let currentIdx = 0;
+    let score = 0; // Exactly 10 points per correct answer, 0 for incorrect. Max: 100
+    let trust = 50; 
+    let streak = 0;
+    let timer;
+    let timeLeft = 15; // 15 seconds per task
+    let userData = { name: '', nik: '' };
+    let reviewData = [];
+    let isProcessing = false;
+
+    // DOM selectors
+    const sGateway = document.getElementById('screen-gateway');
+    const sGame = document.getElementById('screen-game');
+    const sDebrief = document.getElementById('screen-debrief');
+    
+    const elCard = document.getElementById('gameCard');
+    const elScenarioText = document.getElementById('scenarioText');
+    const elFeedbackTag = document.getElementById('feedbackTag');
+    const elFeedbackText = document.getElementById('feedbackText');
+    const elCaseNum = document.getElementById('caseNum');
+    const elTrustMeter = document.getElementById('trustMeter');
+    const elTrustValue = document.getElementById('trustValue');
+    const elScore = document.getElementById('scoreDisplay');
+    const elStreak = document.getElementById('streakDisplay');
+    const elTimerBar = document.getElementById('timerBar');
+    const actionButtons = document.getElementById('actionButtons');
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    document.getElementById('btn-start').addEventListener('click', () => {
+        const name = document.getElementById('playerName').value.trim();
+        const nik = document.getElementById('playerNIK').value.trim();
+        
+        if(!name || !nik) {
+            const inputField = document.getElementById('playerName');
+            inputField.style.borderColor = 'var(--accent-merah)';
+            inputField.placeholder = "Harap Isi Nama Lengkap Anda!";
+            return;
+        }
+        
+        userData = { name, nik };
+        initAudio();
+        startMusicLoop();
+        
+        shuffleArray(scenarios);
+        
+        sGateway.classList.remove('active');
+        sGame.classList.add('active');
+        
+        loadCard();
+    });
+
+    function updateStatsUI() {
+        trust = Math.max(0, Math.min(100, trust));
+        elTrustMeter.style.width = trust + '%';
+        elTrustValue.innerText = trust;
+        
+        if(trust > 70) elTrustMeter.style.background = 'linear-gradient(90deg, var(--accent-merah), var(--accent-lime))';
+        else if(trust > 30) elTrustMeter.style.background = 'linear-gradient(90deg, var(--accent-gold), var(--accent-cyan))';
+        else elTrustMeter.style.background = 'linear-gradient(90deg, var(--accent-merah), #A00020)';
+
+        elScore.innerText = score;
+        elStreak.innerText = streak;
+    }
+
+    function loadCard() {
+        if(currentIdx >= scenarios.length) {
+            endGame();
+            return;
+        }
+
+        isProcessing = false;
+        elCard.classList.remove('flipped', 'swipe-left', 'swipe-right');
+        actionButtons.style.opacity = '1';
+        actionButtons.style.pointerEvents = 'auto';
+        
+        const data = scenarios[currentIdx];
+        elCaseNum.innerText = currentIdx + 1;
+        elScenarioText.innerText = data.text;
+        
+        // Exact 15-second visual shrinking timer
+        timeLeft = 15;
+        elTimerBar.style.width = '100%';
+        elTimerBar.style.transition = 'width 15s linear';
+        
+        void elTimerBar.offsetWidth; // browser redraw trigger
+        elTimerBar.style.width = '0%';
+        
+        clearInterval(timer);
+        timer = setInterval(() => {
+            timeLeft -= 0.1;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                handleAnswer('timeout');
+            }
+        }, 100);
+    }
+
+    function handleAnswer(userChoice) {
+        if (isProcessing) return;
+        isProcessing = true;
+        clearInterval(timer);
+        elTimerBar.style.transition = 'none';
+
+        const data = scenarios[currentIdx];
+        const isCorrect = userChoice === data.type;
+        
+        actionButtons.style.opacity = '0.5';
+        actionButtons.style.pointerEvents = 'none';
+
+        let addedPoints = 0;
+        let trustChange = 0;
+
+        if (userChoice === 'timeout') {
+            streak = 0;
+            trustChange = -10; 
+            playSFX('wrong');
+            showFeedback(data, false, "WAKTU HABIS!");
+        } else if (isCorrect) {
+            streak++;
+            addedPoints = 10; // Exactly 10 points for correct answer
+            score += addedPoints;
+            trustChange = 10;
+            playSFX('correct');
+            showFeedback(data, true, data.type === 'benar' ? "BENAR" : "SALAH");
+        } else {
+            streak = 0;
+            trustChange = -15; // Covey withdrawal penalty
+            playSFX('wrong');
+            showFeedback(data, false, "SALAH!");
+        }
+
+        trust += trustChange;
+        updateStatsUI();
+
+        reviewData.push({
+            text: data.text,
+            isCorrect: isCorrect && userChoice !== 'timeout',
+            theory: data.theory,
+            type: data.type
+        });
+
+        // Safe 3D Rotation Animation
+        setTimeout(() => {
+            elCard.classList.add('flipped');
+        }, 120);
+
+        // Slide away card and present the next challenge
+        setTimeout(() => {
+            if (userChoice === 'salah' || (userChoice === 'timeout' && data.type === 'benar')) {
+                elCard.classList.add('swipe-left');
+            } else {
+                elCard.classList.add('swipe-right');
+            }
+            playSFX('swipe');
+            
+            setTimeout(() => {
+                currentIdx++;
+                loadCard();
+            }, 400);
+            
+        }, 2800); // 2.8 seconds feedback digest
+    }
+
+    function showFeedback(data, isCorrect, titleText) {
+        elFeedbackTag.innerText = titleText;
+        elFeedbackText.innerText = data.theory;
+        
+        if (isCorrect || titleText === "BENAR" || titleText === "SALAH") {
+             if (data.type === 'benar') {
+                 elFeedbackTag.className = 'feedback-type feedback-benar';
+             } else {
+                 elFeedbackTag.className = 'feedback-type feedback-salah';
+             }
+        } else {
+             elFeedbackTag.className = 'feedback-type feedback-salah';
+             elFeedbackTag.style.background = '#1F0008';
+        }
+    }
+
+    function endGame() {
+        sGame.classList.remove('active');
+        sDebrief.classList.add('active');
+        
+        document.getElementById('finalScore').innerText = score + " / 100 Pts";
+        document.getElementById('finalTrust').innerText = trust + '%';
+        document.getElementById('displayUser').innerText = `${userData.name} (${userData.nik})`;
+
+        const titleEl = document.getElementById('resultTitle');
+        const msgEl = document.getElementById('resultMsg');
+        const iconEl = document.getElementById('badgeIcon');
+        const headerEl = document.getElementById('resultHeader');
+
+        if(trust >= 80) {
+            titleEl.innerText = "High-Trust Leader";
+            msgEl.innerText = "Luar biasa! Karakter Anda mencerminkan asas mufakat yang mempercepat keberhasilan proyek.";
+            iconEl.className = "fa-solid fa-crown badge-icon";
+            iconEl.style.color = "var(--accent-gold)";
+            headerEl.style.border = "1.5px solid var(--accent-gold)";
+        } else if (trust >= 50) {
+            titleEl.innerText = "Office Diplomat";
+            msgEl.innerText = "Cukup aman, namun beberapa 'tarikan' ego kecil masih menghambat kinerja harmonis.";
+            iconEl.className = "fa-solid fa-comments badge-icon";
+            iconEl.style.color = "var(--accent-cyan)";
+            headerEl.style.border = "1.5px solid var(--accent-cyan)";
+        } else {
+            titleEl.innerText = "Relation Bankrupt";
+            msgEl.innerText = "Waspada! Kepercayaan habis. Konflik dan salah paham mengancam kelancaran kerja.";
+            iconEl.className = "fa-solid fa-circle-radiation badge-icon";
+            iconEl.style.color = "var(--accent-merah)";
+            headerEl.style.border = "1.5px solid var(--accent-merah)";
+        }
+
+        const container = document.getElementById('reviewContainer');
+        container.innerHTML = ""; // Clear existing assessment list
+        
+        reviewData.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = `review-item ${item.isCorrect ? 'correct' : 'wrong'}`;
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                    <strong>Kasus #${idx + 1}</strong>
+                    <span class="tag" style="margin:0; background: ${item.type === 'benar' ? 'var(--accent-lime)' : 'var(--accent-merah)'}; color: ${item.type==='benar'? '#000':'#fff'}">${item.type.toUpperCase()}</span>
+                </div>
+                <p style="margin-bottom:8px; color: white;">"${item.text}"</p>
+                <div style="font-size: 0.8rem; color: #CCC; background: var(--primary-dark); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan);"></i> ${item.theory}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        console.log(`[LMS Data Transfer Complete] User: ${userData.nik}, Score: ${score}, Trust: ${trust}%`);
+    }
+
+    /* =========================================================================
+       STREAMING_CHUNK: Implementing swipe gestures and mobile touch controls...
+       ========================================================================= */
+    let touchstartX = 0;
+    let touchendX = 0;
+
+    elCard.addEventListener('touchstart', e => {
+        touchstartX = e.changedTouches[0].screenX;
+    }, {passive: true});
+
+    elCard.addEventListener('touchend', e => {
+        touchendX = e.changedTouches[0].screenX;
+        handleGesture();
+    }, {passive: true});
+
+    function handleGesture() {
+        if(isProcessing) return;
+        const diff = touchendX - touchstartX;
+        if (diff < -55) {
+            handleAnswer('salah'); // Swipe Left (Salah)
+        } else if (diff > 55) {
+            handleAnswer('benar'); // Swipe Right (Benar)
+        }
+    }
+
+</script>
+</body>
+</html>
